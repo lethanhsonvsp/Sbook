@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@microsoft/signalr": "^8.0.7"
+  },
+  "AdminPassword": "1311"
+
+}

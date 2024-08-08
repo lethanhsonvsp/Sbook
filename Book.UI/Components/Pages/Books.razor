@@ -1,0 +1,156 @@
+﻿@page "/books"
+@using Book.DataModel
+@using Book.UI.Service
+@using Microsoft.AspNetCore.SignalR.Client
+@inject IBooksService BooksService
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<h3>Books List</h3>
+
+<button class="btn btn-primary" @onclick="() => ShowAddForm()">Add New Book</button>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Year</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Id</td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Year</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => ShowEditForm(book)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteBook(book.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (showForm)
+{
+    <h4>@(editingBook.Id == 0 ? "Add New Book" : "Edit Book")</h4>
+    <EditForm Model="@editingBook" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label for="title">Title</label>
+            <InputText id="title" @bind-Value="editingBook.Title" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="author">Author</label>
+            <InputText id="author" @bind-Value="editingBook.Author" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="year">Year</label>
+            <InputNumber id="year" @bind-Value="editingBook.Year" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    private IEnumerable<BookDM> books;
+
+    private BookDM editingBook = new BookDM();
+    private bool showForm = false;
+    private HubConnection? hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/bookshub"))
+            .Build();
+
+        hubConnection.On<BookDM>("BookAdded", (book) =>
+        {
+            books = books.Append(book);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<BookDM>("BookUpdated", (updatedBook) =>
+        {
+            books = books.Select(b => b.Id == updatedBook.Id ? updatedBook : b).ToList();
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<int>("BookDeleted", (bookId) =>
+        {
+            books = books.Where(b => b.Id != bookId).ToList();
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+        await LoadBooks();
+    }
+
+    private async Task LoadBooks()
+    {
+        books = await BooksService.GetBooks();
+    }
+
+    private void ShowAddForm()
+    {
+        editingBook = new BookDM { Id = 0 };
+        showForm = true;
+    }
+
+    private void ShowEditForm(BookDM book)
+    {
+        editingBook = new BookDM
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year
+            };
+        showForm = true;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (editingBook.Id == 0)
+        {
+            await BooksService.AddBook(editingBook);
+            await hubConnection.SendAsync("BookAdded", editingBook);
+        }
+        else
+        {
+            await BooksService.UpdateBook(editingBook);
+            await hubConnection.SendAsync("BookUpdated", editingBook);
+        }
+        await LoadBooks();
+        showForm = false;
+    }
+
+    private void CancelEdit()
+    {
+        showForm = false;
+    }
+
+    private async Task DeleteBook(int id)
+    {
+        await BooksService.DeleteBook(id);
+        await hubConnection.SendAsync("BookDeleted", id);
+        await LoadBooks();
+    }
+}

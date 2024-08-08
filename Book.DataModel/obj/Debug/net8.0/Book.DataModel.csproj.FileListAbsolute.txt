@@ -1,0 +1,11 @@
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\bin\Debug\net8.0\Book.DataModel.deps.json
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\bin\Debug\net8.0\Book.DataModel.dll
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\bin\Debug\net8.0\Book.DataModel.pdb
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\Book.DataModel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\Book.DataModel.AssemblyInfoInputs.cache
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\Book.DataModel.AssemblyInfo.cs
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\Book.DataModel.csproj.CoreCompileInputs.cache
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\Book.DataModel.dll
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\refint\Book.DataModel.dll
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\Book.DataModel.pdb
+C:\Users\letha\OneDrive\Sbook\Book.DataModel\obj\Debug\net8.0\ref\Book.DataModel.dll
